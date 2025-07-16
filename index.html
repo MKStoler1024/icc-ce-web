@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InkCanvasForClass Community Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .contributor-avatar {
+            transition: all 0.3s ease;
+        }
+
+        .contributor-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .banner-img {
+            max-height: 400px;
+            object-fit: contain;
+        }
+
+        @media (max-width: 768px) {
+            .banner-img {
+                max-height: 250px;
+            }
+        }
+
+        /* 增加 markdown-body 样式，适配 marked.js 格式化内容 */
+        .markdown-body {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #374151;
+            /* 新增：限制最大宽度和高度，自动滚动 */
+            max-width: 100%;
+            max-height: 400px;
+            overflow: auto;
+            word-break: break-word;
+        }
+
+        .markdown-body h1,
+        .markdown-body h2,
+        .markdown-body h3 {
+            margin-top: 1em;
+            margin-bottom: 0.5em;
+            font-weight: bold;
+            color: #1e3a8a;
+        }
+
+        .markdown-body ul,
+        .markdown-body ol {
+            margin-left: 1.5em;
+            margin-bottom: 1em;
+        }
+
+        .markdown-body code {
+            background: #f3f4f6;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 0.95em;
+        }
+
+        .markdown-body pre {
+            background: #f3f4f6;
+            padding: 1em;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+
+        .markdown-body a {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+
+        /* Release 切换动画 */
+        .fade-in {
+            animation: fadeIn 0.4s;
+        }
+
+        .fade-out {
+            animation: fadeOut 0.4s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+    </style>
+    <script>
+        // 页面加载后获取 GitHub 仓库信息并填充徽章
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("https://api.github.com/repos/InkCanvasForClass/community")
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById("github-stars").innerText = data.stargazers_count + " Stars";
+                    document.getElementById("github-forks").innerText = data.forks_count + " Forks";
+                    document.getElementById("github-watchers").innerText = data.watchers_count + " Watch";
+                });
+        });
+
+        // 获取所有 Release 并只展示最新一个，支持切换
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("https://api.github.com/repos/InkCanvasForClass/community/releases")
+                .then(res => res.json())
+                .then(releases => {
+                    let releaseLoading = document.getElementById("release-loading");
+                    let releaseList = document.getElementById("release-list");
+                    releaseLoading.style.display = "none";
+                    releaseList.style.display = "block";
+                    if (releases.length === 0) {
+                        releaseList.innerHTML = `<span class="text-gray-500">暂无 Release</span>`;
+                        return;
+                    }
+
+                    let currentIndex = 0;
+
+                    function renderRelease(idx, animate = false) {
+                        let r = releases[idx];
+                        let assets = r.assets.map(a =>
+                            `<a href="${a.browser_download_url}" target="_blank" class="inline-block px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition mr-2 mb-2">${a.name}</a>`
+                        ).join('');
+                        let bodyHtml = r.body ? marked.parse(r.body) : '<span class="text-gray-400">无说明</span>';
+                        let html = `
+                            <div class="mb-4 p-3 rounded-lg bg-gray-50 shadow">
+                                <div>
+                                    <span class="font-semibold ${r.prerelease ? 'text-yellow-700' : 'text-green-700'}">
+                                        ${r.prerelease ? '预发布' : '正式版'}
+                                    </span>
+                                    <a href="${r.html_url}" target="_blank" class="text-blue-800 font-bold hover:underline ml-2">${r.name || r.tag_name}</a>
+                                    <span class="text-gray-500 text-sm ml-2">${new Date(r.published_at).toLocaleDateString()}</span>
+                                </div>
+                                <div class="mt-2 text-sm markdown-body">${bodyHtml}</div>
+                                <div class="mt-2 text-sm">
+                                    <strong>附件：</strong>
+                                    ${assets || '<span class="text-gray-400">无附件</span>'}
+                                </div>
+                                <div class="mt-4 flex justify-center gap-2">
+                                    <button id="prev-release" class="px-3 py-1 bg-blue-200 text-blue-800 rounded disabled:opacity-50" ${idx === 0 ? 'disabled' : ''}>上一版本</button>
+                                    <span class="px-3 py-1 bg-gray-200 text-gray-800 rounded">第 ${idx + 1} / ${releases.length} 个版本</span>
+                                    <button id="next-release" class="px-3 py-1 bg-blue-200 text-blue-800 rounded disabled:opacity-50" ${idx === releases.length - 1 ? 'disabled' : ''}>下一版本</button>
+                                </div>
+                            </div>
+                        `;
+                        if (animate) {
+                            releaseList.classList.remove('fade-in');
+                            releaseList.classList.add('fade-out');
+                            releaseList.addEventListener('animationend', function handler() {
+                                releaseList.removeEventListener('animationend', handler);
+                                releaseList.innerHTML = html;
+                                releaseList.classList.remove('fade-out');
+                                releaseList.classList.add('fade-in');
+                                bindBtns();
+                            });
+                        } else {
+                            releaseList.innerHTML = html;
+                            releaseList.classList.add('fade-in');
+                            bindBtns();
+                        }
+                    }
+
+                    function bindBtns() {
+                        document.getElementById("prev-release").onclick = function () {
+                            if (currentIndex > 0) {
+                                currentIndex--;
+                                renderRelease(currentIndex, true);
+                            }
+                        };
+                        document.getElementById("next-release").onclick = function () {
+                            if (currentIndex < releases.length - 1) {
+                                currentIndex++;
+                                renderRelease(currentIndex, true);
+                            }
+                        };
+                    }
+
+                    renderRelease(currentIndex);
+                })
+                .catch(() => {
+                    document.getElementById("release-loading").innerText = "获取 Release 信息失败";
+                });
+        });
+    </script>
+</head>
+
+<body class="font-sans bg-gray-50">
+    <!-- Header with Banner -->
+    <header class="gradient-bg text-white" style="background: url('./icc ce.png') center center/cover no-repeat;">
+        <div class="container mx-auto px-4 py-8">
+            <div class="flex flex-col items-center">
+                <!-- 移除 Banner Image，只保留 Logo -->
+                <img src="icc.png" alt="InkCanvasForClass Logo" class="w-32 h-32 mb-4">
+                <h1 class="text-4xl font-bold mb-2 text-center">InkCanvasForClass<br />Community Edition</h1>
+                <p class="text-xl mb-6 text-center">最后一次基于 InkCanvas 控件的倔强...</p>
+
+                <!-- Badges -->
+                <div class="flex flex-wrap justify-center gap-2 mb-8">
+                    <span class="px-3 py-1 bg-blue-800 rounded-full text-sm flex items-center">
+                        <i class="fas fa-balance-scale mr-1"></i> GPLv3
+                    </span>
+                    <span class="px-3 py-1 bg-blue-800 rounded-full text-sm flex items-center">
+                        <i class="fab fa-microsoft mr-1"></i> C#
+                    </span>
+                    <span class="px-3 py-1 bg-blue-800 rounded-full text-sm flex items-center">
+                        <i class="fas fa-star mr-1"></i>
+                        <span id="github-stars">-- Stars</span>
+                    </span>
+                    <span class="px-3 py-1 bg-blue-800 rounded-full text-sm flex items-center">
+                        <i class="fas fa-code-branch mr-1"></i>
+                        <span id="github-forks">-- Forks</span>
+                    </span>
+                    <span class="px-3 py-1 bg-blue-800 rounded-full text-sm flex items-center">
+                        <i class="fas fa-eye mr-1"></i>
+                        <span id="github-watchers">-- Watch</span>
+                    </span>
+                    <span class="px-3 py-1 bg-blue-800 rounded-full text-sm flex items-center">
+                        <i class="fas fa-users mr-1"></i> Contributors
+                    </span>
+                </div>
+
+                <!-- Social Links -->
+                <div class="flex flex-wrap justify-center gap-4 mb-8">
+                    <a href="https://discord.gg/ahj7eJWhEG"
+                        class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg flex items-center">
+                        <i class="fab fa-discord mr-2"></i> Discord
+                    </a>
+                    <a href="https://qm.qq.com/q/qo32AclNh6"
+                        class="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg flex items-center">
+                        <i class="fab fa-qq mr-2"></i> QQ Group
+                    </a>
+                    <a href="https://forum.smart-teach.cn/t/icc-ce"
+                        class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg flex items-center">
+                        <i class="fas fa-comments mr-2"></i> 智教论坛
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 下载信息区域 -->
+    <div id="release-info"
+        class="w-full max-w-2xl bg-white bg-opacity-80 rounded-xl shadow-md p-6 mb-6 text-center mx-auto mt-12">
+        <h2 class="text-xl font-bold text-blue-800 mb-2"><i class="fas fa-download mr-2"></i> 所有发布版本</h2>
+        <div id="release-loading" class="text-gray-500">正在获取版本列表...</div>
+        <div id="release-list" style="display:none;">
+            <!-- 版本列表将由 JS 填充 -->
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-12">
+        <!-- Features Overview -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold text-center mb-8 text-blue-900">功能概览</h2>
+            <p class="text-lg text-center mb-12 text-gray-700 max-w-3xl mx-auto">
+                ICC-CE 是一款功能强大的课堂绘图增强工具，专为教育工作者打造。以下是主要功能概览：
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="bg-white rounded-xl p-6 shadow-md feature-card transition-all duration-300">
+                    <div class="text-blue-500 mb-4">
+                        <i class="fas fa-magic text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-blue-800">智能笔迹处理</h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-blue-500 mt-1 mr-2"></i>
+                            <span>线条拉直功能：自动识别并将其转换为完美直线</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-blue-500 mt-1 mr-2"></i>
+                            <span>形状识别：自动识别并优化手绘形状（矩形、三角形、圆形等）</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-blue-500 mt-1 mr-2"></i>
+                            <span>端点吸附：线条端点自动吸附到附近的其他端点</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="bg-white rounded-xl p-6 shadow-md feature-card transition-all duration-300">
+                    <div class="text-blue-500 mb-4">
+                        <i class="fas fa-pen-fancy text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-blue-800">多样化绘图工具</h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-blue-500 mt-1 mr-2"></i>
+                            <span>笔和荧光笔：可调整粗细和透明度</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-blue-500 mt-1 mr-2"></i>
+                            <span>触摸模式：指尖绘图和笔尖模式</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-blue-500 mt-1 mr-2"></i>
+                            <span>橡皮擦：点擦模式和笔画擦除</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="bg-white rounded-xl p-6 shadow-md feature-card transition-all duration-300">
+                    <div class="text-blue-500 mb-4">
+                        <i class="fas fa-project-diagram text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-blue-800">PowerPoint 集成</h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-blue-500 mt-1 mr-2"></i>
+                            <span>在幻灯片放映模式中直接标注</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-blue-500 mt-1 mr-2"></i>
+                            <span>可定制的控制按钮，便于导航演示文稿</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-blue-500 mt-1 mr-2"></i>
+                            <span>保存带有标注的幻灯片截图</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="bg-white rounded-xl p-6 shadow-md feature-card transition-all duration-300">
+                    <div class="text-blue-500 mb-4">
+                        <i class="fas fa-hand-paper text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-blue-800">手势控制</h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-blue-500 mt-1 mr-2"></i>
+                            <span>使用手势控制幻灯片切换</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-blue-500 mt-1 mr-2"></i>
+                            <span>缩放和平移标注内容</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-blue-500 mt-1 mr-2"></i>
+                            <span>旋转和重新排列绘制的元素</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="bg-white rounded-xl p-6 shadow-md feature-card transition-all duration-300">
+                    <div class="text-blue-500 mb-4">
+                        <i class="fas fa-touch text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-blue-800">多点触控支持</h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-blue-500 mt-1 mr-2"></i>
+                            <span>双指缩放：放大或缩小绘图区域</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-blue-500 mt-1 mr-2"></i>
+                            <span>旋转手势：旋转选定内容</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-blue-500 mt-1 mr-2"></i>
+                            <span>平移操作：在绘图区域内移动</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="bg-white rounded-xl p-6 shadow-md feature-card transition-all duration-300">
+                    <div class="text-blue-500 mb-4">
+                        <i class="fas fa-robot text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-blue-800">自动化功能</h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-blue-500 mt-1 mr-2"></i>
+                            <span>自动检测常见白板和教学软件</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-blue-500 mt-1 mr-2"></i>
+                            <span>定期保存绘图内容</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-blue-500 mt-1 mr-2"></i>
+                            <span>清除画布前自动备份</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Copyright Notice -->
+        <section class="mb-16 bg-blue-50 rounded-xl p-6">
+            <div class="text-center">
+                <i class="fas fa-heart text-red-500 text-2xl mb-4"></i>
+                <p class="text-gray-700 mb-4">
+                    <strong>本项目版权归 <a href="https://github.com/CJK-mkp" class="text-blue-600 hover:underline">CJKmkp</a>
+                        和 <a href="https://github.com/DotteringDoge471"
+                            class="text-blue-600 hover:underline">DotteringDoge471</a> 共同所有。<a
+                            href="https://github.com/CJK-mkp" class="text-blue-600 hover:underline">CJKmkp</a>
+                        拥有最终解释权。</strong>
+                </p>
+                <p class="text-gray-700">
+                    <strong>智教联盟 InkCanvasForClass Community Edition 板块：</strong>
+                    <a href="https://forum.smart-teach.cn/t/icc-ce"
+                        class="text-blue-600 hover:underline">forum.smart-teach.cn/t/icc-ce</a>，我们会在此处发布版本更新日志，同时，您也可以在遵守论坛对应管理规则与InkCanvasForClass
+                    Community Edition 板块管理条约的情况下，在该板块内提问或发表自己的使用体验。
+                </p>
+            </div>
+        </section>
+
+        <!-- Usage Notice -->
+        <section class="mb-16 bg-yellow-50 rounded-xl p-6">
+            <h2 class="text-2xl font-bold mb-4 text-yellow-800 flex items-center">
+                <i class="fas fa-exclamation-triangle mr-2"></i> 使用须知
+            </h2>
+            <p class="text-gray-700 mb-4">
+                在使用和分发本软件前，请务必了解相关开源协议。本软件基于 <a href="https://github.com/Awesome-Iwb/icc-0610fix"
+                    class="text-blue-600 hover:underline">https://github.com/Awesome-Iwb/icc-0610fix</a> 修改而来，而
+                icc-0610fix 基于 <a href="https://github.com/ChangSakura/Ink-Canvas"
+                    class="text-blue-600 hover:underline">https://github.com/ChangSakura/Ink-Canvas</a> 修改，ica 则基于 <a
+                    href="https://github.com/WXRIW/Ink-Canvas"
+                    class="text-blue-600 hover:underline">https://github.com/WXRIW/Ink-Canvas</a>
+                修改，增加了包括但不限于隐藏到侧边栏等功能，更改了相关UI和软件操作逻辑。对于墨迹书写功能以及 ica 独有功能的相关问题反馈，建议优先查阅 <a
+                    href="https://github.com/WXRIW/Ink-Canvas/issues"
+                    class="text-blue-600 hover:underline">https://github.com/WXRIW/Ink-Canvas/issues</a>。<strong>使用前建议戴上大脑使用。</strong>
+            </p>
+        </section>
+
+        <!-- Tips -->
+        <section class="mb-16 bg-blue-50 rounded-xl p-6">
+            <h2 class="text-2xl font-bold mb-4 text-blue-800 flex items-center">
+                <i class="fas fa-comment-dots mr-2"></i> 提示
+            </h2>
+            <ul class="space-y-4 text-gray-700">
+                <li class="flex items-start">
+                    <i class="fas fa-info-circle text-blue-500 mt-1 mr-2"></i>
+                    <span>对于新功能的有效意见和合理建议，开发者会适时回复并进行开发。本软件并非商业性质软件或由营利性机构驱动，请不要催促开发者，耐心等待能让功能少些Bug，更加稳定。</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-info-circle text-blue-500 mt-1 mr-2"></i>
+                    <span>此软件仅用于个人使用，请勿商用。更新速度不会很快，如果有能力请通过PR贡献代码，而不是在 Issue 里无能狂怒。</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-info-circle text-blue-500 mt-1 mr-2"></i>
+                    <span>欢迎尝试 InkCanvas 家族的其他成员，包括 <a href="https://khyan.top/ic+"
+                            class="text-blue-600 hover:underline">Ink Canvas Plus</a> 和 <a
+                            href="https://github.com/InkCanvas/Ink-Canvas-Artistry"
+                            class="text-blue-600 hover:underline">Ink Canvas Artistry</a>。您的大力宣传能让更多用户发现我们的软件。</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-info-circle text-blue-500 mt-1 mr-2"></i>
+                    <span><strong>强烈建议使用 Microsoft Office 365 的 PowerPoint 搭配 InkCanvasForClass
+                            使用，效果更好！！！</strong></span>
+                </li>
+            </ul>
+        </section>
+
+        <!-- Contributors -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold text-center mb-8 text-blue-900">贡献者</h2>
+            <div class="bg-white rounded-xl p-6 shadow-md">
+                <div class="text-center mb-6">
+                    <i class="fas fa-users text-3xl text-blue-500 mb-2"></i>
+                    <p class="text-gray-600 italic">此列表通过All Contributers实现。</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                    <!-- Contributor 1 -->
+                    <div class="bg-gray-50 p-4 rounded-lg text-center">
+                        <a href="https://github.com/CJKmkp" class="block">
+                            <img src="https://avatars.githubusercontent.com/u/113243675?v=4?s=100" alt="CJK_mkp"
+                                class="w-24 h-24 rounded-full mx-auto mb-3 contributor-avatar">
+                            <h3 class="font-semibold text-blue-800">CJK_mkp</h3>
+                            <div class="flex justify-center space-x-2 mt-2">
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">🚧
+                                    Maintenance</span>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">📖
+                                    Documentation</span>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">💻 Code</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Contributor 2 -->
+                    <div class="bg-gray-50 p-4 rounded-lg text-center">
+                        <a href="http://hydro11451.qzz.io" class="block">
+                            <img src="https://avatars.githubusercontent.com/u/214308559?v=4?s=100" alt="Hydrogen"
+                                class="w-24 h-24 rounded-full mx-auto mb-3 contributor-avatar">
+                            <h3 class="font-semibold text-blue-800">Hydrogen</h3>
+                            <div class="flex justify-center mt-2">
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">💻 Code</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Contributor 3 -->
+                    <div class="bg-gray-50 p-4 rounded-lg text-center">
+                        <a href="https://github.com/CreeperAWA" class="block">
+                            <img src="https://avatars.githubusercontent.com/u/134939494?v=4?s=100" alt="CreeperAWA"
+                                class="w-24 h-24 rounded-full mx-auto mb-3 contributor-avatar">
+                            <h3 class="font-semibold text-blue-800">CreeperAWA</h3>
+                            <div class="flex justify-center mt-2">
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">💻 Code</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Acknowledgements -->
+        <section class="mb-16 bg-blue-50 rounded-xl p-6">
+            <h2 class="text-2xl font-bold mb-4 text-blue-800 flex items-center">
+                <i class="fas fa-hands-helping mr-2"></i> 感谢
+            </h2>
+            <ul class="space-y-4 text-gray-700">
+                <li class="flex items-start">
+                    <i class="fas fa-heart text-red-500 mt-1 mr-2"></i>
+                    <span>感谢 <a href="https://github.com/DotteringDoge471"
+                            class="text-blue-600 hover:underline">DotteringDoge471</a> 创造了
+                        <code>InkCanvasForClass</code>！</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-heart text-red-500 mt-1 mr-2"></i>
+                    <span>感谢 <a href="https://github.com/yuwenhui2020"
+                            class="text-blue-600 hover:underline">yuwenhui2020</a> 为 <code>Ink Canvas 使用说明</code>
+                        做出的贡献！</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-heart text-red-500 mt-1 mr-2"></i>
+                    <span>感谢 <a href="https://github.com/CN-Ironegg"
+                            class="text-blue-600 hover:underline">CN-Ironegg</a>、<a href="https://github.com/jiajiaxd"
+                            class="text-blue-600 hover:underline">jiajiaxd</a>、<a href="https://github.com/kengwang"
+                            class="text-blue-600 hover:underline">Kengwang</a>、<a
+                            href="https://github.com/Raspberry-Monster" class="text-blue-600 hover:underline">Raspberry
+                            Kan</a>、<a href="https://github.com/clover-yan"
+                            class="text-blue-600 hover:underline">clover-yan</a>、<a href="https://github.com/STBBRD"
+                            class="text-blue-600 hover:underline">STBBRD</a>、<a href="https://github.com/WuChanging"
+                            class="text-blue-600 hover:underline">ChangSakura</a>、<a
+                            href="https://github.com/DotteringDoge471"
+                            class="text-blue-600 hover:underline">DotteringDoge471</a>、<a
+                            href="https://github.com/Hydro11451" class="text-blue-600 hover:underline">Hydro11451</a>
+                        为本项目贡献代码！</span>
+                </li>
+            </ul>
+        </section>
+
+        <!-- License -->
+        <section class="text-center">
+            <h2 class="text-2xl font-bold mb-4 text-blue-800">License</h2>
+            <div class="bg-gray-100 rounded-lg p-4 inline-block">
+                <i class="fab fa-github text-3xl mb-2 text-gray-700"></i>
+                <p class="text-gray-700 font-mono">GPLv3</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="gradient-bg text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <h2 class="text-xl font-bold mb-2">InkCanvasForClass Community Edition</h2>
+                    <p class="text-blue-200">最后一次基于 InkCanvas 控件的倔强...</p>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="https://github.com/InkCanvasForClass/community" class="hover:text-blue-300">
+                        <i class="fab fa-github text-2xl"></i>
+                    </a>
+                    <a href="https://discord.gg/ahj7eJWhEG" class="hover:text-blue-300">
+                        <i class="fab fa-discord text-2xl"></i>
+                    </a>
+                    <a href="https://qm.qq.com/q/qo32AclNh6" class="hover:text-blue-300">
+                        <i class="fab fa-qq text-2xl"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="border-t border-blue-700 mt-6 pt-6 text-center text-blue-200">
+                <p>&copy; 2025 InkCanvasForClass Community Edition. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>
