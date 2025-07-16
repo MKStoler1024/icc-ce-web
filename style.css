@@ -1,0 +1,340 @@
+.gradient-bg {
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+}
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+.contributor-avatar {
+    transition: all 0.3s ease;
+}
+.contributor-avatar:hover {
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+}
+.banner-img {
+    max-height: 400px;
+    object-fit: contain;
+}
+@media (max-width: 768px) {
+    .banner-img {
+        max-height: 250px;
+    }
+}
+/* markdown-body 样式，适配 marked.js 格式化内容 */
+.markdown-body {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #374151;
+    max-width: 100%;
+    max-height: 400px;
+    overflow: auto;
+    word-break: break-word;
+}
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3 {
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+    font-weight: bold;
+    color: #1e3a8a;
+}
+.markdown-body ul,
+.markdown-body ol {
+    margin-left: 1.5em;
+    margin-bottom: 1em;
+}
+.markdown-body code {
+    background: #f3f4f6;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-size: 0.95em;
+}
+.markdown-body pre {
+    background: #f3f4f6;
+    padding: 1em;
+    border-radius: 6px;
+    overflow-x: auto;
+}
+.markdown-body a {
+    color: #2563eb;
+    text-decoration: underline;
+}
+/* Release 切换动画 */
+.fade-in {
+    animation: fadeIn 0.4s;
+}
+.fade-out {
+    animation: fadeOut 0.4s;
+}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+@keyframes fadein {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.animate-fadein {
+    animation: fadein 0.5s;
+}
+
+/* 深色模式适配 */
+body.dark {
+    background-color: #18181b;
+}
+nav.dark {
+    background-color: #18181b;
+}
+.markdown-body.dark {
+    color: #e5e7eb;
+    scrollbar-color: #374151 #23272f;
+    scrollbar-width: thin;
+}
+.markdown-body.dark::-webkit-scrollbar {
+    width: 8px;
+    background: #23272f;
+}
+.markdown-body.dark::-webkit-scrollbar-thumb {
+    background: #374151;
+    border-radius: 4px;
+}
+.markdown-body.dark::-webkit-scrollbar-thumb:hover {
+    background: #4b5563;
+}
+.markdown-body.dark h1,
+.markdown-body.dark h2,
+.markdown-body.dark h3 {
+    color: #60a5fa;
+}
+.markdown-body.dark code,
+.markdown-body.dark pre {
+    background: #27272a;
+    color: #e5e7eb;
+}
+.markdown-body.dark a {
+    color: #60a5fa;
+}
+.bg-gray-50.dark,
+.bg-white.dark,
+.bg-blue-50.dark,
+.bg-yellow-50.dark {
+    background-color: #23272f !important;
+    color: #e5e7eb !important;
+    border-color: #27272a !important;
+}
+.text-blue-900.dark {
+    color: #60a5fa !important;
+}
+.text-blue-800.dark {
+    color: #60a5fa !important;
+}
+.text-gray-700.dark {
+    color: #e5e7eb !important;
+}
+.text-gray-600.dark {
+    color: #d1d5db !important;
+}
+.text-gray-500.dark {
+    color: #a1a1aa !important;
+}
+.text-gray-800.dark {
+    color: #e5e7eb !important;
+}
+.text-yellow-800.dark {
+    color: #fde68a !important;
+}
+.text-green-800.dark {
+    color: #6ee7b7 !important;
+}
+.bg-gray-100.dark {
+    background-color: #27272a !important;
+}
+.bg-gray-200.dark {
+    background-color: #18181b !important;
+}
+.bg-blue-800.dark {
+    background-color: #1e40af !important;
+}
+.bg-blue-100.dark {
+    background-color: #1e3a8a !important;
+}
+.bg-blue-600.dark {
+    background-color: #2563eb !important;
+}
+.bg-blue-200.dark {
+    background-color: #1e40af !important;
+}
+.bg-yellow-100.dark {
+    background-color: #fde68a !important;
+    color: #92400e !important;
+}
+.bg-green-200.dark {
+    background-color: #065f46 !important;
+    color: #6ee7b7 !important;
+    border: 1px solid #6ee7b7 !important;
+}
+.bg-gray-700.dark {
+    background-color: #27272a !important;
+}
+.bg-gray-300.dark {
+    background-color: #23272f !important;
+}
+.bg-purple-600.dark {
+    background-color: #6d28d9 !important;
+}
+.bg-indigo-600.dark {
+    background-color: #312e81 !important;
+}
+.bg-blue-500.dark {
+    background-color: #2563eb !important;
+}
+.bg-gray-50.dark {
+    background-color: #23272f !important;
+}
+.shadow.dark {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.7);
+}
+.gradient-bg.dark {
+    /* 保持原有背景即可 */
+}
+.text-white.dark {
+    color: #fff !important;
+}
+.text-red-500.dark {
+    color: #f87171 !important;
+}
+.text-blue-200.dark {
+    color: #93c5fd !important;
+}
+.text-blue-300.dark {
+    color: #60a5fa !important;
+}
+.text-blue-600.dark {
+    color: #60a5fa !important;
+}
+.text-blue-700.dark {
+    color: #3b82f6 !important;
+}
+.text-blue-800.dark {
+    color: #2563eb !important;
+}
+.text-gray-200.dark {
+    color: #e5e7eb !important;
+}
+.text-gray-400.dark {
+    color: #9ca3af !important;
+}
+.text-yellow-700.dark {
+    color: #fde68a !important;
+}
+.text-green-700.dark {
+    color: #6ee7b7 !important;
+}
+.text-purple-700.dark {
+    color: #c4b5fd !important;
+}
+.text-indigo-700.dark {
+    color: #a5b4fc !important;
+}
+.text-blue-500.dark {
+    color: #3b82f6 !important;
+}
+.text-blue-900.dark {
+    color: #1e3a8a !important;
+}
+.text-red-500.dark {
+    color: #f87171 !important;
+}
+.text-2xl.dark {
+    color: #e5e7eb !important;
+}
+.text-xl.dark {
+    color: #e5e7eb !important;
+}
+.font-bold.dark {
+    color: #e5e7eb !important;
+}
+.rounded-xl.dark {
+    border-color: #27272a !important;
+}
+.inline-block.dark {
+    color: #e5e7eb !important;
+}
+.p-6.dark {
+    background-color: #23272f !important;
+}
+.shadow-md.dark {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.7);
+}
+.transition.dark {
+    transition: background-color 0.3s, color 0.3s;
+}
+a.dark:hover {
+    color: #60a5fa !important;
+}
+
+/* 正式版/测试版标签暗色模式优化 */
+.bg-green-200.dark {
+    background-color: #065f46 !important;
+    color: #6ee7b7 !important;
+    border: 1px solid #6ee7b7 !important;
+}
+.bg-yellow-200.dark {
+    background-color: #92400e !important;
+    color: #fde68a !important;
+    border: 1px solid #fde68a !important;
+}
+
+/* 贡献者tags暗色模式优化 */
+.bg-blue-100.dark {
+    background-color: #1e3a8a !important;
+    color: #93c5fd !important;
+    border: 1px solid #93c5fd !important;
+}
+
+/* 修复下方板块暗色模式背景和边框 */
+.bg-white.dark,
+.bg-gray-50.dark,
+.bg-blue-50.dark,
+.bg-yellow-50.dark {
+    background-color: #23272f !important;
+    color: #e5e7eb !important;
+    border-color: #27272a !important;
+}
+.rounded-xl.dark {
+    border-color: #27272a !important;
+}
+.p-6.dark {
+    background-color: #23272f !important;
+}
+.shadow-md.dark {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.7);
+}
+
+/* 修复“上一版本/下一版本”按钮暗色模式可读性 */
+.bg-blue-200.dark {
+    background-color: #2563eb !important;
+    color: #fff !important;
+    border: 1px solid #60a5fa !important;
+}
+.bg-blue-200.dark:disabled {
+    background-color: #1e40af !important;
+    color: #a1a1aa !important;
+}
