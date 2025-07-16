@@ -1,12 +1,35 @@
 // 页面加载后获取 GitHub 仓库信息并填充徽章
 document.addEventListener("DOMContentLoaded", async function () {
-    fetch("https://api.github.com/repos/InkCanvasForClass/community")
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById("github-stars").innerText = data.stargazers_count + " Stars";
-            document.getElementById("github-forks").innerText = data.forks_count + " Forks";
-            document.getElementById("github-watchers").innerText = data.watchers_count + " Watch";
-        });
+    // 获取 star/fork/watchers 支持自动切换到镜像源，全部失败则提示
+    async function fetchRepoInfo() {
+        let urls = [
+            "https://api.github.com/repos/InkCanvasForClass/community"
+        ];
+        if (fastestMirror) {
+            urls.push(fastestMirror + "/https://api.github.com/repos/InkCanvasForClass/community");
+        }
+        for (const mirror of [
+            "https://gh.llkk.cc",
+            "https://ghfile.geekertao.top",
+            "https://gh.dpik.top",
+            "https://github.dpik.top",
+            "https://github.acmsz.top",
+            "https://git.yylx.win"
+        ]) {
+            urls.push(mirror + "/https://api.github.com/repos/InkCanvasForClass/community");
+        }
+        for (let i = 0; i < urls.length; i++) {
+            try {
+                let res = await fetch(urls[i], { cache: "no-store" });
+                if (res.ok) {
+                    return await res.json();
+                }
+            } catch (e) {
+                // ignore
+            }
+        }
+        return null;
+    }
 
     // 深色模式自动适配和手动切换
     const darkBtn = document.getElementById("toggle-dark");
@@ -317,6 +340,18 @@ document.addEventListener("DOMContentLoaded", async function () {
     // 页面加载时测速并加载发行版
     releaseLoading.innerHTML = loadingSpinner("正在测速下载加速源...");
     fastestMirror = await detectFastestMirror();
+
+    // 获取徽章信息
+    const repoInfo = await fetchRepoInfo();
+    if (repoInfo) {
+        document.getElementById("github-stars").innerText = repoInfo.stargazers_count + " Stars";
+        document.getElementById("github-forks").innerText = repoInfo.forks_count + " Forks";
+        document.getElementById("github-watchers").innerText = repoInfo.watchers_count + " Watch";
+    } else {
+        document.getElementById("github-stars").innerText = "-- Stars";
+        document.getElementById("github-forks").innerText = "-- Forks";
+        document.getElementById("github-watchers").innerText = "-- Watch";
+    }
 
     releaseLoading.innerHTML = loadingSpinner("正在获取版本列表...");
     fetchOfficial().then(() => {
