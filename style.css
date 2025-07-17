@@ -338,3 +338,36 @@ a.dark:hover {
     background-color: #1e40af !important;
     color: #a1a1aa !important;
 }
+
+/* 移动端导航栏展开/收起动画 */
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-16px);}
+    to { opacity: 1; transform: translateY(0);}
+}
+@keyframes slideUp {
+    from { opacity: 1; transform: translateY(0);}
+    to { opacity: 0; transform: translateY(-16px);}
+}
+.nav-mobile-anim-in {
+    animation: slideDown 0.3s;
+}
+.nav-mobile-anim-out {
+    animation: slideUp 0.3s;
+}
+
+/* 移动端导航栏亮/暗色优化 */
+#nav-links {
+    background-color: #fff;
+}
+body.dark #nav-links {
+    background-color: #18181b;
+}
+#nav-links a {
+    border-bottom: 1px solid #e5e7eb;
+}
+body.dark #nav-links a {
+    border-bottom: 1px solid #27272a;
+}
+#nav-links a:last-child {
+    border-bottom: none;
+}
