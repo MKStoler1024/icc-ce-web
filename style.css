@@ -166,7 +166,14 @@ img {
 
 /* --- Typography Classes --- */
 .typescale-display-large { font-size: var(--md-sys-typescale-display-large-size); font-weight: 400; line-height: 4rem; }
-.typescale-display-medium { font-size: var(--md-sys-typescale-display-medium-size); font-weight: 400; line-height: 3.25rem; }
+.typescale-display-medium {
+    font-size: var(--md-sys-typescale-display-medium-size);
+    font-weight: 400;
+    line-height: 3.25rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    word-break: break-word;
+}
 .typescale-headline-large { font-size: var(--md-sys-typescale-headline-large-size); font-weight: 400; line-height: 2.5rem; }
 .typescale-headline-medium { font-size: var(--md-sys-typescale-headline-medium-size); font-weight: 400; line-height: 2.25rem; }
 .typescale-title-large { font-size: var(--md-sys-typescale-title-large-size); font-weight: 500; line-height: 1.75rem; }
@@ -272,7 +279,7 @@ img {
     gap: 0.375rem;
     height: 2rem;
     padding: 0 0.75rem;
-    border-radius: 0.5rem;
+    border-radius: 2rem;
     font-size: var(--md-sys-typescale-label-large-size);
     background-color: var(--md-sys-color-secondary-container);
     color: var(--md-sys-color-on-secondary-container);
@@ -328,6 +335,7 @@ img {
 }
 
 /* Mobile Navigation */
+/* Mobile Navigation */
 #mobile-nav-scrim {
     position: fixed;
     top: 0;
@@ -338,8 +346,15 @@ img {
     z-index: 198;
     opacity: 0;
     pointer-events: none;
+    /* 保持不变，用于背景遮罩的淡入淡出 */
     transition: opacity var(--transition-duration) var(--transition-timing);
+    will-change: opacity;
 }
+#mobile-nav-scrim.is-open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
 #mobile-nav-drawer {
     position: fixed;
     top: 0;
@@ -353,16 +368,20 @@ img {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    /* 初始状态：完全移出视图，并且透明 */
     transform: translateX(-100%);
-    transition: transform var(--transition-duration) var(--transition-timing), background-color var(--transition-duration) var(--transition-timing);
+    opacity: 0; /* 新增：初始透明度为0 */
+    /* 动画过渡：同时过渡 transform 和 opacity */
+    transition: transform var(--transition-duration) var(--transition-timing),
+                opacity var(--transition-duration) var(--transition-timing),
+                background-color var(--transition-duration) var(--transition-timing);
+    will-change: transform, opacity; /* 更新：will-change 包含 opacity */
 }
 #mobile-nav-drawer.is-open {
-    transform: translateX(0);
+    transform: translateX(0); /* 动画结束状态：回到原位 */
+    opacity: 1; /* 新增：动画结束透明度为1 */
 }
-#mobile-nav-scrim.is-open {
-    opacity: 1;
-    pointer-events: auto;
-}
+
 .mobile-nav-header {
     padding: 1rem 0.5rem;
 }
@@ -425,7 +444,7 @@ img {
     margin-bottom: 3rem;
 }
 
-/* Release Section */
+/* --- Release Section --- */
 #release-info {
     margin: 4rem 0;
 }
@@ -604,6 +623,57 @@ img {
     line-height: 1; /* 尝试将行高设置为1，或者与按钮的文字行高保持一致 */
     /* 如果需要，可以进行微调 */
     /* transform: translateY(2px); */ /* 尝试向下微调，根据实际效果调整像素值 */
+}
+
+.release-item {
+    /* 如果 release-item 本身的内容就可能溢出（例如，其内部有太多行文本） */
+    /* 并且你想限制它的单行高度，那么可以考虑设置 min-height 或 max-height */
+    /* 但通常溢出的是内部文本，而不是 release-item 容器本身 */
+    
+    /* 允许长单词或URL在需要时断开，防止水平溢出 */
+    word-wrap: break-word; /* 兼容旧浏览器 */
+    overflow-wrap: break-word; /* 现代浏览器推荐 */
+}
+
+/* 如果 release-item 内部有特定的文本区域（比如用于显示发布说明的div或p标签） */
+/* 你可能需要更具体地定位它们，以确保文本换行 */
+.release-item .release-description, /* 假设你有一个这样的类来包裹描述文本 */
+.release-item .release-asset-name { /* 假设你有一个这样的类来包裹文件名称 */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal; /* 确保没有强制不换行 */
+}
+
+/* style.css */
+
+.btn--tonal span { /* 定位到下载按钮内的文本 span */
+    display: inline-block; /* 必须是块级或行内块级元素才能应用文本溢出 */
+    max-width: 150px; /* 设置一个最大宽度，文本超出这个宽度才会显示省略号 */
+    white-space: nowrap; /* 强制文本不换行 */
+    overflow: hidden;    /* 隐藏超出宽度的部分 */
+    text-overflow: ellipsis; /* 显示省略号 */
+    vertical-align: middle; /* 确保文本和图标垂直对齐 */
+}
+
+/* 调整按钮整体的内边距，以确保图标和省略号文本的布局 */
+.btn--tonal {
+    display: inline-flex; /* 使用 flexbox 布局使图标和文本对齐 */
+    align-items: center; /* 垂直居中对齐 */
+    gap: 8px; /* 图标和文本之间的间距 */
+    /* 移除之前可能为换行设置的 padding-left/right 如果它导致了不协调 */
+    padding: 8px 16px; /* 调整整体内边距 */
+}
+
+/* 如果你的下载图标和文本在不同的 span 里，可能需要更精细的调整 */
+.btn--tonal .material-symbols-outlined {
+    flex-shrink: 0; /* 确保图标不会被压缩 */
+}
+
+/* 如果按钮文本被包裹在 span 中 */
+.release-item .download-button span {
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 @keyframes spin {
