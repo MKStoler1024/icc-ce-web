@@ -1,200 +1,153 @@
 <!DOCTYPE html>
-<html lang="zh-CN" class="scroll-smooth">
+<html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InkCanvasForClass Community Edition</title>
     
-    <script src="https://cdn.tailwindcss.com"></script>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
-
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Noto Sans SC', 'sans-serif'],
-                    },
-                    colors: {
-                        // M3 Light Theme Colors
-                        'primary': '#0061a4', 'on-primary': '#ffffff', 'primary-container': '#d1e4ff', 'on-primary-container': '#001d36',
-                        'secondary': '#535f70', 'on-secondary': '#ffffff', 'secondary-container': '#d7e3f7', 'on-secondary-container': '#101c2b',
-                        'tertiary': '#6b5778', 'on-tertiary': '#ffffff', 'tertiary-container': '#f2daff', 'on-tertiary-container': '#251431',
-                        'error': '#ba1a1a', 'on-error': '#ffffff', 'error-container': '#ffdad6', 'on-error-container': '#410002',
-                        'background': '#fdfcff', 'on-background': '#1a1c1e', 'surface': '#fdfcff', 'on-surface': '#1a1c1e',
-                        'surface-variant': '#dfe3eb', 'on-surface-variant': '#42474e',
-                        'outline': '#73777f', 'outline-variant': '#c2c7cf',
-                        'shadow': '#000000', 'scrim': '#000000',
-                        'inverse-surface': '#2f3033', 'on-inverse-surface': '#f1f0f4', 'inverse-primary': '#9ecaff',
-                        'surface-container-lowest': '#ffffff', 'surface-container-low': '#f7f9fc', 'surface-container': '#f1f4f7',
-                        'surface-container-high': '#ebeef1', 'surface-container-highest': '#e6e8eb',
-
-                        // M3 Dark Theme Colors
-                        'dark': {
-                            'primary': '#9ecaff', 'on-primary': '#003258', 'primary-container': '#00497d', 'on-primary-container': '#d1e4ff',
-                            'secondary': '#bac7db', 'on-secondary': '#253140', 'secondary-container': '#3b4858', 'on-secondary-container': '#d7e3f7',
-                            'tertiary': '#d6bee4', 'on-tertiary': '#3b2948', 'tertiary-container': '#523f5f', 'on-tertiary-container': '#f2daff',
-                            'error': '#ffb4ab', 'on-error': '#690005', 'error-container': '#93000a', 'on-error-container': '#ffdad6',
-                            'background': '#1a1c1e', 'on-background': '#e2e2e6', 'surface': '#1a1c1e', 'on-surface': '#e2e2e6',
-                            'surface-variant': '#42474e', 'on-surface-variant': '#c2c7cf',
-                            'outline': '#8c9199', 'outline-variant': '#42474e',
-                            'shadow': '#000000', 'scrim': '#000000',
-                            'inverse-surface': '#e2e2e6', 'on-inverse-surface': '#1a1c1e', 'inverse-primary': '#0061a4',
-                            'surface-container-lowest': '#141619', 'surface-container-low': '#1a1c1e', 'surface-container': '#1e2022',
-                            'surface-container-high': '#282b2d', 'surface-container-highest': '#333638',
-                        }
-                    },
-                    fontSize: {
-                        'display-large': ['3.5625rem', { lineHeight: '4rem', letterSpacing: '-0.015625em', fontWeight: '400' }],
-                        'display-medium': ['2.8125rem', { lineHeight: '3.25rem', letterSpacing: '0em', fontWeight: '400' }],
-                        'headline-large': ['2rem', { lineHeight: '2.5rem', letterSpacing: '0em', fontWeight: '400' }],
-                        'headline-medium': ['1.75rem', { lineHeight: '2.25rem', letterSpacing: '0em', fontWeight: '400' }],
-                        'title-large': ['1.375rem', { lineHeight: '1.75rem', letterSpacing: '0em', fontWeight: '500' }],
-                        'title-medium': ['1rem', { lineHeight: '1.5rem', letterSpacing: '0.009375em', fontWeight: '500' }],
-                        'label-large': ['0.875rem', { lineHeight: '1.25rem', letterSpacing: '0.00625em', fontWeight: '500' }],
-                        'body-large': ['1rem', { lineHeight: '1.5rem', letterSpacing: '0.03125em', fontWeight: '400' }],
-                        'body-medium': ['0.875rem', { lineHeight: '1.25rem', letterSpacing: '0.01785714em', fontWeight: '400' }],
-                    }
-                }
-            }
-        }
-    </script>
 </head>
 
-<body class="bg-background dark:bg-dark-background text-on-surface dark:text-dark-on-surface transition-colors duration-300">
-    <nav id="top-app-bar" class="bg-surface-container dark:bg-dark-surface-container sticky top-0 z-30 transition-colors duration-300">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <a href="#" class="flex items-center space-x-3">
-                    <img src="icc.png" alt="ICC Logo" class="w-8 h-8 rounded-full">
-                    <span class="text-title-large text-on-surface dark:text-dark-on-surface">ICC-CE</span>
-                </a>
-                
-                <div class="hidden md:flex items-center space-x-2">
-                    <a href="#features" class="px-3 py-2 rounded-full text-label-large text-on-surface-variant dark:text-dark-on-surface-variant hover:bg-on-surface/10 dark:hover:bg-dark-on-surface/10 transition">功能</a>
-                    <a href="#release-info" class="px-3 py-2 rounded-full text-label-large text-on-surface-variant dark:text-dark-on-surface-variant hover:bg-on-surface/10 dark:hover:bg-dark-on-surface/10 transition">下载</a>
-                    <a href="#contributors" class="px-3 py-2 rounded-full text-label-large text-on-surface-variant dark:text-dark-on-surface-variant hover:bg-on-surface/10 dark:hover:bg-dark-on-surface/10 transition">贡献</a>
-                    <button id="toggle-dark" aria-label="Toggle Dark Mode" class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant dark:text-dark-on-surface-variant hover:bg-on-surface/10 dark:hover:bg-dark-on-surface/10 transition"></button>
-                </div>
-                
-                <div class="md:hidden flex items-center">
-                    <button id="nav-toggle" aria-label="Toggle Navigation Menu" class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant dark:text-dark-on-surface-variant hover:bg-on-surface/10 dark:hover:bg-dark-on-surface/10 transition">
-                        <span class="material-symbols-outlined">menu</span>
-                    </button>
-                </div>
+<body>
+    <nav id="top-app-bar">
+        <div class="container nav-container">
+            <a href="#" class="nav-logo">
+                <img src="icc.png" alt="ICC Logo" class="nav-logo-img">
+                <span class="typescale-title-large">ICC-CE</span>
+            </a>
+            
+            <div class="nav-links-desktop">
+                <a href="#features" class="btn btn--text">功能</a>
+                <a href="#release-info" class="btn btn--text">下载</a>
+                <a href="#contributors" class="btn btn--text">贡献</a>
+                <button id="toggle-dark" aria-label="Toggle Dark Mode" class="btn btn--icon">
+                    <span class="material-symbols-outlined"></span>
+                </button>
             </div>
-        </div>
-        <div id="nav-links" class="hidden md:hidden absolute top-16 left-0 w-full bg-surface-container-high dark:bg-dark-surface-container-high shadow-lg z-40 p-2">
-            <a href="#features" class="block px-4 py-3 rounded-lg text-body-large text-on-surface-variant dark:text-dark-on-surface-variant hover:bg-on-surface/10 dark:hover:bg-dark-on-surface/10">功能概览</a>
-            <a href="#release-info" class="block px-4 py-3 rounded-lg text-body-large text-on-surface-variant dark:text-dark-on-surface-variant hover:bg-on-surface/10 dark:hover:bg-dark-on-surface/10">下载</a>
-            <a href="#contributors" class="block px-4 py-3 rounded-lg text-body-large text-on-surface-variant dark:text-dark-on-surface-variant hover:bg-on-surface/10 dark:hover:bg-dark-on-surface/10">贡献者</a>
-            <div class="border-t border-outline-variant dark:border-dark-outline-variant my-2"></div>
-            <button id="toggle-dark-mobile" class="w-full flex items-center px-4 py-3 rounded-lg text-body-large text-on-surface-variant dark:text-dark-on-surface-variant hover:bg-on-surface/10 dark:hover:bg-dark-on-surface/10">
-            </button>
+            
+            <div class="nav-mobile-toggle">
+                <button id="nav-toggle" aria-label="Toggle Navigation Menu" class="btn btn--icon">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+            </div>
         </div>
     </nav>
 
-    <header class="bg-surface-container-low dark:bg-dark-surface-container-low py-16 sm:py-24">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <img src="icc.png" alt="InkCanvasForClass Logo" class="w-28 h-28 mx-auto mb-6">
-            <h1 class="text-display-medium font-normal text-on-surface dark:text-dark-on-surface mb-4">InkCanvasForClass<br />Community Edition</h1>
-            <p class="text-headline-medium font-normal text-on-surface-variant dark:text-dark-on-surface-variant mb-8">最后一次基于 InkCanvas 控件的倔强...</p>
+    <div id="mobile-nav-scrim"></div>
+    <div id="mobile-nav-drawer">
+        <div class="mobile-nav-header">
+             <a href="#" class="nav-logo">
+                <img src="icc.png" alt="ICC Logo" class="nav-logo-img">
+                <span class="typescale-title-large">ICC-CE</span>
+            </a>
+        </div>
+        <a href="#features" class="mobile-nav-link">功能概览</a>
+        <a href="#release-info" class="mobile-nav-link">下载</a>
+        <a href="#contributors" class="mobile-nav-link">贡献者</a>
+        <div class="divider"></div>
+        <button id="toggle-dark-mobile" class="mobile-nav-link">
+             <span class="material-symbols-outlined"></span>
+             <span>切换主题</span>
+        </button>
+    </div>
 
-            <div class="flex flex-wrap justify-center items-center gap-3 mb-10">
-                 <div class="flex items-center gap-1.5 px-3 h-8 rounded-lg bg-secondary-container dark:bg-dark-secondary-container text-on-secondary-container dark:text-dark-on-secondary-container text-label-large">
-                    <i class="fa-solid fa-gavel fa-sm"></i><span>GPLv3</span>
-                </div>
-                 <div class="flex items-center gap-1.5 px-3 h-8 rounded-lg bg-secondary-container dark:bg-dark-secondary-container text-on-secondary-container dark:text-dark-on-secondary-container text-label-large">
-                    <i class="fab fa-microsoft fa-sm"></i><span>C#</span>
-                </div>
-                 <div id="github-stars" class="flex items-center gap-1.5 px-3 h-8 rounded-lg bg-secondary-container dark:bg-dark-secondary-container text-on-secondary-container dark:text-dark-on-secondary-container text-label-large"></div>
-                 <div id="github-forks" class="flex items-center gap-1.5 px-3 h-8 rounded-lg bg-secondary-container dark:bg-dark-secondary-container text-on-secondary-container dark:text-dark-on-secondary-container text-label-large"></div>
-                 <div id="github-watchers" class="flex items-center gap-1.5 px-3 h-8 rounded-lg bg-secondary-container dark:bg-dark-secondary-container text-on-secondary-container dark:text-dark-on-secondary-container text-label-large"></div>
+    <header class="hero-section">
+        <div class="container hero-content">
+            <img src="icc.png" alt="InkCanvasForClass Logo" class="hero-logo">
+            <h1 class="typescale-display-medium">InkCanvasForClass<br />Community Edition</h1>
+            <p class="typescale-headline-medium hero-subtitle">最后一次基于 InkCanvas 控件的倔强...</p>
+
+            <div class="chips-group">
+                <div class="chip"><i class="fa-solid fa-gavel fa-sm"></i><span>GPLv3</span></div>
+                <div class="chip"><i class="fab fa-microsoft fa-sm"></i><span>C#</span></div>
+                <div id="github-stars" class="chip"></div>
+                <div id="github-forks" class="chip"></div>
+                <div id="github-watchers" class="chip"></div>
             </div>
 
-            <div class="flex flex-wrap justify-center gap-4">
-                <a href="https://discord.gg/ahj7eJWhEG" class="h-10 px-6 flex items-center justify-center gap-2 rounded-full bg-primary dark:bg-dark-primary text-on-primary dark:text-dark-on-primary text-label-large font-medium shadow-sm hover:shadow-md transition">
+            <div class="hero-actions">
+                <a href="https://discord.gg/ahj7eJWhEG" class="btn btn--filled">
                     <i class="fab fa-discord"></i><span>Discord</span>
                 </a>
-                 <a href="#release-info" class="h-10 px-6 flex items-center justify-center gap-2 rounded-full bg-primary-container dark:bg-dark-primary-container text-on-primary-container dark:text-dark-on-primary-container text-label-large font-medium hover:bg-primary-container/80 dark:hover:bg-dark-primary-container/80 transition">
-                    <span class="material-symbols-outlined text-lg">download</span>
+                 <a href="#release-info" class="btn btn--tonal">
+                    <span class="material-symbols-outlined">download</span>
                     <span>前往下载</span>
                 </a>
             </div>
         </div>
     </header>
 
-    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <main class="container">
         
-        <section id="release-info" class="bg-surface-container-high dark:bg-dark-surface-container-high rounded-3xl p-6 mb-16">
-            <div class="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4">
-                <h2 class="text-headline-medium font-normal text-on-surface-variant dark:text-dark-on-surface-variant flex items-center gap-3">
+        <section id="release-info" class="card card--filled">
+            <div class="release-header">
+                <h2 class="typescale-headline-medium release-title">
                     <span class="material-symbols-outlined">history</span>
                     <span>发布版本</span>
                 </h2>
-                <button id="toggle-beta" class="h-10 px-6 flex items-center justify-center gap-2 rounded-full bg-tertiary-container dark:bg-dark-tertiary-container text-on-tertiary-container dark:text-dark-on-tertiary-container text-label-large font-medium transition">
-                </button>
+                <button id="toggle-beta" class="btn btn--tonal"></button>
             </div>
-            <div id="release-loading" class="text-center py-8 text-on-surface-variant dark:text-dark-on-surface-variant"></div>
-            <div id="release-list" class="space-y-4" style="display:none;">
-                </div>
+            <div id="release-loading" class="release-loader-container">
+                <div class="loader"></div>
+                <p>正在检测镜像源并获取最新版本...</p>
+            </div>
+            <div id="release-list"></div>
         </section>
 
-        <section id="features" class="mb-16">
-            <h2 class="text-headline-large font-normal text-center mb-12 text-on-surface dark:text-dark-on-surface">功能概览</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="border border-outline dark:border-dark-outline rounded-2xl p-6 transition hover:bg-surface-container dark:hover:bg-dark-surface-container">
-                    <div class="w-12 h-12 mb-4 rounded-full flex items-center justify-center bg-primary-container dark:bg-dark-primary-container text-on-primary-container dark:text-dark-on-primary-container"><span class="material-symbols-outlined">auto_fix</span></div>
-                    <h3 class="text-title-large mb-3 text-on-surface dark:text-dark-on-surface">智能笔迹处理</h3>
-                    <p class="text-body-medium text-on-surface-variant dark:text-dark-on-surface-variant">自动识别并优化手绘的线条、形状，并提供端点吸附功能。</p>
+        <section id="features" class="content-section">
+            <h2 class="typescale-headline-large section-title">功能概览</h2>
+            <div class="grid-3-col">
+                <div class="card card--outlined feature-card">
+                    <div class="feature-icon"><span class="material-symbols-outlined">auto_fix</span></div>
+                    <h3 class="typescale-title-large">智能笔迹处理</h3>
+                    <p class="typescale-body-medium card-subtitle">自动识别并优化手绘的线条、形状，并提供端点吸附功能。</p>
                 </div>
-                <div class="border border-outline dark:border-dark-outline rounded-2xl p-6 transition hover:bg-surface-container dark:hover:bg-dark-surface-container">
-                    <div class="w-12 h-12 mb-4 rounded-full flex items-center justify-center bg-primary-container dark:bg-dark-primary-container text-on-primary-container dark:text-dark-on-primary-container"><span class="material-symbols-outlined">palette</span></div>
-                    <h3 class="text-title-large mb-3 text-on-surface dark:text-dark-on-surface">多样化绘图工具</h3>
-                    <p class="text-body-medium text-on-surface-variant dark:text-dark-on-surface-variant">提供可调粗细和透明度的笔、荧光笔，以及多种橡皮擦模式。</p>
+                <div class="card card--outlined feature-card">
+                    <div class="feature-icon"><span class="material-symbols-outlined">palette</span></div>
+                    <h3 class="typescale-title-large">多样化绘图工具</h3>
+                    <p class="typescale-body-medium card-subtitle">提供可调粗细和透明度的笔、荧光笔，以及多种橡皮擦模式。</p>
                 </div>
-                <div class="border border-outline dark:border-dark-outline rounded-2xl p-6 transition hover:bg-surface-container dark:hover:bg-dark-surface-container">
-                    <div class="w-12 h-12 mb-4 rounded-full flex items-center justify-center bg-primary-container dark:bg-dark-primary-container text-on-primary-container dark:text-dark-on-primary-container"><span class="material-symbols-outlined">integration_instructions</span></div>
-                    <h3 class="text-title-large mb-3 text-on-surface dark:text-dark-on-surface">PowerPoint 集成</h3>
-                    <p class="text-body-medium text-on-surface-variant dark:text-dark-on-surface-variant">在幻灯片放映模式中直接标注，并可定制控制按钮。</p>
+                <div class="card card--outlined feature-card">
+                    <div class="feature-icon"><span class="material-symbols-outlined">integration_instructions</span></div>
+                    <h3 class="typescale-title-large">PowerPoint 集成</h3>
+                    <p class="typescale-body-medium card-subtitle">在幻灯片放映模式中直接标注，并可定制控制按钮。</p>
                 </div>
-                </div>
+            </div>
         </section>
 
-        <section class="mb-16 bg-error-container dark:bg-dark-error-container text-on-error-container dark:text-dark-on-error-container rounded-3xl p-6">
-            <h2 class="text-title-large mb-4 flex items-center gap-2">
+        <section class="card card--error">
+            <h2 class="typescale-title-large card-title-icon">
                 <span class="material-symbols-outlined">warning</span>
-                使用须知
+                <span>使用须知</span>
             </h2>
-            <p class="text-body-medium">
+            <p class="typescale-body-medium">
                 在使用和分发本软件前，请务必了解相关开源协议。本软件基于多个早期版本修改而来，对于核心功能问题，建议优先查阅原始仓库的 Issues。<strong>使用前建议戴上大脑。</strong>
             </p>
         </section>
 
-        <section id="contributors" class="mb-16">
-            <h2 class="text-headline-large font-normal text-center mb-12 text-on-surface dark:text-dark-on-surface">贡献者</h2>
-            <div class="bg-surface-container dark:bg-dark-surface-container rounded-3xl p-6">
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    <div class="text-center group">
+        <section id="contributors" class="content-section">
+            <h2 class="typescale-headline-large section-title">贡献者</h2>
+            <div class="card card--filled">
+                 <div class="grid-4-col">
+                    <div class="contributor-card">
                         <a href="https://github.com/CJKmkp" target="_blank" rel="noopener noreferrer">
-                            <img src="https://avatars.githubusercontent.com/u/113243675?v=4" alt="CJK_mkp" class="w-24 h-24 rounded-full mx-auto mb-3 transition group-hover:scale-105">
-                            <h3 class="text-title-medium text-on-surface-variant dark:text-dark-on-surface-variant">CJK_mkp</h3>
+                            <img src="https://avatars.githubusercontent.com/u/113243675?v=4" alt="CJK_mkp" class="contributor-avatar">
+                            <h3 class="typescale-title-medium contributor-name">CJK_mkp</h3>
                         </a>
-                        <div class="flex justify-center flex-wrap gap-1.5 mt-2">
-                            <span class="px-2 py-0.5 text-xs rounded-lg bg-primary-container dark:bg-dark-primary-container text-on-primary-container dark:text-dark-on-primary-container">Maintenance</span>
-                            <span class="px-2 py-0.5 text-xs rounded-lg bg-primary-container dark:bg-dark-primary-container text-on-primary-container dark:text-dark-on-primary-container">Code</span>
+                        <div class="chips-group">
+                            <span class="chip chip--small">Maintenance</span>
+                            <span class="chip chip--small">Code</span>
                         </div>
                     </div>
                     </div>
@@ -202,21 +155,22 @@
         </section>
     </main>
 
-    <footer class="bg-surface-container-high dark:bg-dark-surface-container-high text-on-surface-variant dark:text-dark-on-surface-variant">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-8">
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
                 <div>
-                    <h2 class="text-title-large text-on-surface dark:text-dark-on-surface">InkCanvasForClass CE</h2>
-                    <p class="text-body-medium mt-1">最后一次基于 InkCanvas 控件的倔强...</p>
+                    <h2 class="typescale-title-large">InkCanvasForClass CE</h2>
+                    <p class="typescale-body-medium footer-subtitle">最后一次基于 InkCanvas 控件的倔强...</p>
                 </div>
-                <div class="flex space-x-2">
-                    <a href="https://github.com/InkCanvasForClass/community" aria-label="GitHub Repository" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-on-surface/10 dark:hover:bg-dark-on-surface/10 transition"><i class="fab fa-github text-xl"></i></a>
-                    <a href="https://discord.gg/ahj7eJWhEG" aria-label="Discord Server" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-on-surface/10 dark:hover:bg-dark-on-surface/10 transition"><i class="fab fa-discord text-xl"></i></a>
-                    <a href="https://qm.qq.com/q/qo32AclNh6" aria-label="QQ Group" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-on-surface/10 dark:hover:bg-dark-on-surface/10 transition"><i class="fab fa-qq text-xl"></i></a>
+                <div class="footer-socials">
+                    <a href="https://github.com/InkCanvasForClass/community" aria-label="GitHub Repository" class="btn btn--icon"><i class="fab fa-github"></i></a>
+                    <a href="https://discord.gg/ahj7eJWhEG" aria-label="Discord Server" class="btn btn--icon"><i class="fab fa-discord"></i></a>
+                    <a href="https://qm.qq.com/q/qo32AclNh6" aria-label="QQ Group" class="btn btn--icon"><i class="fab fa-qq"></i></a>
                 </div>
             </div>
-            <div class="border-t border-outline dark:border-dark-outline mt-8 pt-8 text-center text-body-medium">
-                <p>&copy; 2025 InkCanvasForClass Community. All rights reserved. Licensed under GPLv3.</p>
+            <div class="divider"></div>
+            <div class="footer-copyright">
+                <p class="typescale-body-medium">&copy; 2025 InkCanvasForClass Community. All rights reserved. Licensed under GPLv3.</p>
             </div>
         </div>
     </footer>
