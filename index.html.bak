@@ -32,14 +32,6 @@
                 <a href="#features" class="btn btn--text">功能</a>
                 <a href="#release-info" class="btn btn--text">下载</a>
                 <a href="#contributors" class="btn btn--text">贡献</a>
-                <!-- 添加文档站链接 -->
-                <a href="https://inkcanvasforclass.github.io/website" target="_blank" class="btn btn--text">
-                    <i class="fa-solid fa-book"></i>文档
-                </a>
-                <!-- 添加GitHub仓库链接 -->
-                <a href="https://github.com/InkCanvasForClass/community" target="_blank" class="btn btn--text">
-                    <i class="fab fa-github fa-sm"></i>仓库
-                </a>
                 <button id="toggle-dark" aria-label="Toggle Dark Mode" class="btn btn--icon">
                     <span class="material-symbols-outlined"></span>
                 </button>
@@ -64,14 +56,6 @@
         <a href="#features" class="mobile-nav-link">功能概览</a>
         <a href="#release-info" class="mobile-nav-link">下载</a>
         <a href="#contributors" class="mobile-nav-link">贡献者</a>
-        <!-- 移动端文档站链接 -->
-        <a href="https://inkcanvasforclass.github.io/website" target="_blank" class="mobile-nav-link">
-            <span class="material-symbols-outlined">library_books</span>文档站
-        </a>
-        <!-- 移动端GitHub仓库链接 -->
-        <a href="https://github.com/InkCanvasForClass/community" target="_blank" class="mobile-nav-link">
-            <i class="fab fa-github"></i> GitHub仓库
-        </a>
         <div class="divider"></div>
         <button id="toggle-dark-mobile" class="mobile-nav-link">
             <span class="material-symbols-outlined"></span>
