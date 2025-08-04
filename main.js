@@ -359,7 +359,7 @@ function createModalStyles() {
         elements.thankYouText.textContent = `感谢您下载 InkCanvasforClass-Community (${version})`;
         elements.countdown.textContent = countdownValue;
         elements.manualDownload.href = downloadUrl;
-        elements.manualDownload.textContent = "此处";
+        elements.manualDownload.textContent = "单击此处下载";
         elements.docsLink.href = "https://inkcanvasforclass.github.io/website";
         
         // 显示弹窗
