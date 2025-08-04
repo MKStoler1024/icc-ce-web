@@ -1,5 +1,125 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // --- Constants & State ---
+    // --- 弹窗相关元素创建 ---
+    function createDownloadModal() {
+        const modal = document.createElement('div');
+        modal.id = 'download-modal';
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="typescale-title-large">感谢下载</h2>
+                    <button id="close-modal" class="btn btn--icon">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="thank-you-text" class="typescale-body-large">感谢您下载 InkCanvasforClass-Community</p>
+                    <p class="typescale-body-medium">您的下载将会在 <span id="countdown" class="countdown-number">5</span> 秒钟后开始</p>
+                    <p class="typescale-body-medium" style="margin-bottom: 0">如果没有开始，请 <a id="manual-download" href="#" class="link">单击此处</a></p>
+                    <div class="help-section">
+                        <span class="material-symbols-outlined">help</span>
+                        <span>第一次使用？<a id="docs-link" href="https://inkcanvasforclass.github.io/website" target="_blank" class="link">看看这个！</a></span>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+
+    // 创建弹窗CSS样式
+function createModalStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal.is-open {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: var(--md-sys-color-surface-container);
+            border-radius: 1rem;
+            padding: 0 1.5rem 1.5rem; /* 增加水平方向的内边距 */
+            max-width: 480px;
+            width: 100%;
+            box-shadow: var(--md-sys-elevation-level3);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+        
+        .modal.is-open .modal-content {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 1.5rem 0 0.75rem; /* 调整标题区域的内边距 */
+            border-bottom: 1px solid var(--md-sys-color-outline-variant);
+        }
+        
+        .modal-body {
+            padding: 0 1rem; /* 主要内容区域两侧增加内边距 */
+        }
+        
+        .countdown-number {
+            font-weight: bold;
+            color: var(--md-sys-color-primary);
+        }
+        
+        .help-section {
+            margin-top: 1.5rem;
+            padding: 1rem; /* 帮助区域增加内边距 */
+            background: var(--md-sys-color-surface-container-high);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .link {
+            text-decoration: underline;
+            color: var(--md-sys-color-primary);
+            font-weight: 600;
+        }
+        
+        /* 移动端优化 */
+        @media (max-width: 480px) {
+            .modal-content {
+                margin: 0 1rem; /* 在小屏幕上两侧留出更多空间 */
+                padding: 0 1rem 1rem; /* 调整内边距 */
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+
+    createModalStyles();
+    createDownloadModal();
+
+    // --- 常量与状态 ---
+    const SMART_TEACH_DOMAIN = "https://get.smart-teach.cn";
+    const COMMUNITY_PATH = "/d/Ningbo-S3/shared/jiangling/community";
+    const COMMUNITY_BETA_PATH = "/d/Ningbo-S3/shared/jiangling/community-beta";
     const GITHUB_REPO_COMMUNITY = "InkCanvasForClass/community";
     const GITHUB_REPO_COMMUNITY_BETA = "InkCanvasForClass/community-beta";
     const GITHUB_API_BASE = "https://api.github.com/repos/";
@@ -18,45 +138,101 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentReleases = [];
     let currentIndex = 0;
     let showingBeta = false;
+    let smartTeachAvailable = false;
 
-    // --- DOM Elements ---
+    // --- DOM元素 ---
     const elements = {
-        // Theme
+        // 主题
         toggleDarkBtn: document.getElementById("toggle-dark"),
         toggleDarkMobileBtn: document.getElementById("toggle-dark-mobile"),
         
-        // Navigation
+        // 导航
         navToggleBtn: document.getElementById("nav-toggle"),
         mobileNavDrawer: document.getElementById("mobile-nav-drawer"),
         mobileNavScrim: document.getElementById("mobile-nav-scrim"),
         mobileNavLinks: document.querySelectorAll("#mobile-nav-drawer a, #mobile-nav-drawer button"),
         topAppBar: document.getElementById("top-app-bar"),
 
-        // GitHub Stats
+        // GitHub统计
         githubStars: document.getElementById("github-stars"),
         githubForks: document.getElementById("github-forks"),
         githubWatchers: document.getElementById("github-watchers"),
 
-        // Release Section
+        // 发布区
         releaseContainer: document.getElementById("release-info"),
         releaseLoading: document.getElementById("release-loading"),
         releaseLoadingText: document.querySelector("#release-loading p"),
         releaseList: document.getElementById("release-list"),
         toggleBetaBtn: document.getElementById("toggle-beta"),
+        
+        // 弹窗
+        downloadModal: document.getElementById("download-modal"),
+        manualDownload: document.getElementById("manual-download"),
+        thankYouText: document.getElementById("thank-you-text"),
+        countdown: document.getElementById("countdown"),
+        docsLink: document.getElementById("docs-link"),
+        closeModal: document.getElementById("close-modal")
     };
 
-    // --- API & Mirror Logic ---
+    // --- API与镜像处理 ---
     function buildApiUrls(endpoint) {
         const uniqueUrls = new Set();
-        // Prioritize fastest mirror if detected
+        // 优先使用最快镜像
         if (fastestMirror) {
             uniqueUrls.add(`${fastestMirror}/${GITHUB_API_BASE}${endpoint}`);
         }
-        // Add official URL
+        // 添加官方URL
         uniqueUrls.add(`${GITHUB_API_BASE}${endpoint}`);
-        // Add all other mirrors
+        // 添加所有镜像
         MIRROR_URLS.forEach(mirror => uniqueUrls.add(`${mirror}/${GITHUB_API_BASE}${endpoint}`));
         return Array.from(uniqueUrls);
+    }
+
+    // 提取版本号
+    function extractVersionFromUrl(url) {
+        const regex = /InkCanvasForClass\.CE\.(\d+\.\d+\.\d+\.\d+)\.zip/;
+        const match = url.match(regex);
+        return match ? match[1] : null;
+    }
+
+    // 测试智教下载源的可用性
+    async function testSmartTeachAvailability() {
+        try {
+            // 测试HEAD请求响应时间
+            const testUrl = `${SMART_TEACH_DOMAIN}${COMMUNITY_PATH}/test.txt`;
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000);
+            
+            const response = await fetch(testUrl, {
+                method: 'HEAD',
+                signal: controller.signal,
+                cache: 'no-store'
+            });
+            
+            clearTimeout(timeoutId);
+            return response.status === 200 || response.status < 400;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    // 转换下载URL
+    function buildSmartTeachUrl(url, isBeta = false) {
+        const fileName = url.split('/').pop();
+        const basePath = isBeta ? COMMUNITY_BETA_PATH : COMMUNITY_PATH;
+        return `${SMART_TEACH_DOMAIN}${basePath}/${fileName}`;
+    }
+
+    function convertDownloadUrl(url, isBeta = false) {
+        if (smartTeachAvailable) {
+            return buildSmartTeachUrl(url, isBeta);
+        }
+        
+        if (fastestMirror && url.startsWith("https://github.com/")) {
+            return url.replace("https://github.com/", `${fastestMirror}/https://github.com/`);
+        }
+        
+        return url;
     }
 
     async function fetchDataWithMirrors(urls, errorMessage = "获取数据失败") {
@@ -64,46 +240,47 @@ document.addEventListener("DOMContentLoaded", function () {
             try {
                 const res = await fetch(url, { cache: "no-store" });
                 if (res.ok) return await res.json();
-            } catch (e) { /* Ignore error and try next mirror */ }
+                console.log(`尝试镜像失败: ${url}, 状态码: ${res.status}`);
+            } catch (e) {
+                console.log(`尝试镜像失败: ${url}, 错误: ${e.message}`);
+            }
         }
         elements.releaseLoadingText.textContent = errorMessage;
         elements.releaseLoading.querySelector('.loader').style.display = 'none';
         return null;
     }
 
+    // 检测最快的镜像
     async function detectFastestMirror() {
         updateLoadingText("正在检测镜像源...");
         const endpoint = `${GITHUB_REPO_COMMUNITY}/releases/latest`;
-        const testUrls = [`https://api.github.com/repos/${endpoint}`, ...MIRROR_URLS.map(m => `${m}/${GITHUB_API_BASE}${endpoint}`)];
+        const testUrls = [`${GITHUB_API_BASE}${endpoint}`, ...MIRROR_URLS.map(m => `${m}/${GITHUB_API_BASE}${endpoint}`)];
         
         const results = await Promise.all(testUrls.map(url => 
             new Promise(resolve => {
                 const start = performance.now();
-                // Use a short timeout to prevent long waits
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 3000);
                 
                 fetch(url, { method: "HEAD", cache: "no-store", signal: controller.signal })
-                    .then(() => resolve(performance.now() - start))
-                    .catch(() => resolve(Infinity))
+                    .then(() => {
+                        const timeTaken = performance.now() - start;
+                        resolve({url, timeTaken});
+                    })
+                    .catch(() => resolve({url, timeTaken: Infinity}))
                     .finally(() => clearTimeout(timeoutId));
             })
         ));
 
-        let minIdx = results.indexOf(Math.min(...results));
-        // If the fastest is Infinity (all failed), or the official one is fastest, return null.
-        if (results[minIdx] === Infinity || minIdx === 0) return null;
-        return MIRROR_URLS[minIdx - 1];
-    }
-    
-    function convertDownloadUrl(url) {
-        if (fastestMirror && url.startsWith("https://github.com/")) {
-            return url.replace("https://github.com/", `${fastestMirror}/https://github.com/`);
-        }
-        return url;
+        // 按时间排序并排除超时的
+        const sortedResults = results
+            .filter(result => result.timeTaken !== Infinity)
+            .sort((a, b) => a.timeTaken - b.timeTaken);
+        
+        return sortedResults.length > 0 ? sortedResults[0].url : null;
     }
 
-    // --- Rendering Logic ---
+    // --- 渲染逻辑 ---
     function updateLoadingText(text) {
         if (elements.releaseLoadingText) {
             elements.releaseLoadingText.textContent = text;
@@ -118,13 +295,20 @@ document.addEventListener("DOMContentLoaded", function () {
     
         const r = currentReleases[idx];
         const assetsHtml = r.assets
-            //.filter(a => a.name.endsWith('.exe'))
-            .map(a => `
-                <a href="${convertDownloadUrl(a.browser_download_url)}" target="_blank" class="btn btn--tonal">
-                    <span class="material-symbols-outlined">download</span>
-                    <span>${a.name} (${(a.size / 1024 / 1024).toFixed(2)} MB)</span>
-                </a>
-            `).join('') || `<p class="typescale-body-medium card-subtitle">无可用附件</p>`;
+            .map(a => {
+                // 提取原始下载URL的版本号
+                const version = extractVersionFromUrl(a.browser_download_url);
+                const downloadUrl = convertDownloadUrl(a.browser_download_url, r._isBeta);
+                return `
+                    <button data-download-url="${downloadUrl}" 
+                            data-original-url="${a.browser_download_url}" 
+                            data-version="${version}"
+                            class="btn btn--tonal download-btn">
+                        <span class="material-symbols-outlined">download</span>
+                        <span>${a.name} (${(a.size / 1024 / 1024).toFixed(2)} MB)</span>
+                    </button>
+                `;
+            }).join('') || `<p class="typescale-body-medium card-subtitle">无可用附件</p>`;
     
         const bodyHtml = r.body && typeof marked !== 'undefined'
             ? marked.parse(r.body)
@@ -164,8 +348,92 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("next-release").onclick = () => { if (currentIndex < currentReleases.length - 1) renderRelease(++currentIndex); };
     }
 
-    // --- UI Logic ---
-    // Dark Mode
+    // --- 弹窗逻辑 ---
+    function showDownloadModal(downloadUrl, version) {
+        let countdownValue = 5;
+        let countdownInterval;
+        let downloadSource = smartTeachAvailable ? "国内镜像" : "GitHub镜像";
+        let manualDownloadStarted = false;
+        
+        // 更新显示内容
+        elements.thankYouText.textContent = `感谢您下载 InkCanvasforClass-Community (${version})`;
+        elements.countdown.textContent = countdownValue;
+        elements.manualDownload.href = downloadUrl;
+        elements.manualDownload.textContent = "此处";
+        elements.docsLink.href = "https://inkcanvasforclass.github.io/website";
+        
+        // 显示弹窗
+        elements.downloadModal.classList.add('is-open');
+        
+        // 开始倒计时
+        countdownInterval = setInterval(() => {
+            countdownValue--;
+            elements.countdown.textContent = countdownValue;
+            
+            if (countdownValue <= 0 && !manualDownloadStarted) {
+                clearInterval(countdownInterval);
+                // 自动下载
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = '';
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                
+                // 3秒后关闭弹窗
+                setTimeout(() => {
+                    elements.downloadModal.classList.remove('is-open');
+                }, 3000);
+            }
+        }, 1000);
+        
+        // 手动下载处理
+        elements.manualDownload.addEventListener('click', function(e) {
+            e.preventDefault();
+            manualDownloadStarted = true;
+            clearInterval(countdownInterval);
+            
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = '';
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            // 关闭弹窗
+            setTimeout(() => {
+                elements.downloadModal.classList.remove('is-open');
+            }, 1500);
+        });
+        
+        // 关闭按钮
+        elements.closeModal.addEventListener('click', function() {
+            clearInterval(countdownInterval);
+            elements.downloadModal.classList.remove('is-open');
+        });
+    }
+
+    // 下载按钮事件监听
+    function handleDownloadBtnClick() {
+        elements.releaseList.addEventListener('click', function(e) {
+            const downloadBtn = e.target.closest('.download-btn');
+            if (downloadBtn) {
+                e.preventDefault();
+                const downloadUrl = downloadBtn.getAttribute('data-download-url');
+                const version = downloadBtn.getAttribute('data-version') || '最新版';
+                const originalUrl = downloadBtn.getAttribute('data-original-url');
+                
+                // 如果智教不可达，使用原URL
+                const effectiveUrl = smartTeachAvailable ? downloadUrl : originalUrl;
+                showDownloadModal(effectiveUrl, version);
+            }
+        });
+    }
+
+    // --- UI逻辑 ---
+    // 深色模式
     const initDarkMode = () => {
         const storedTheme = localStorage.getItem('theme');
         const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -182,7 +450,7 @@ document.addEventListener("DOMContentLoaded", function () {
         elements.toggleDarkMobileBtn.querySelector('span:last-child').textContent = text;
     };
     
-    // Mobile Navigation
+    // 移动端导航
     const toggleMobileNav = (open) => {
         const isOpen = typeof open === 'boolean' ? open : !elements.mobileNavDrawer.classList.contains('is-open');
         elements.mobileNavDrawer.classList.toggle('is-open', isOpen);
@@ -191,7 +459,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.body.style.overflow = isOpen ? 'hidden' : '';
     };
 
-    // --- Event Listeners & Initialization ---
+    // --- 事件监听与初始化 ---
     function bindEventListeners() {
         elements.toggleDarkBtn.addEventListener('click', () => setTheme(!document.documentElement.classList.contains('dark')));
         elements.toggleDarkMobileBtn.addEventListener('click', () => setTheme(!document.documentElement.classList.contains('dark')));
@@ -238,10 +506,22 @@ document.addEventListener("DOMContentLoaded", function () {
     async function init() {
         initDarkMode();
         bindEventListeners();
+        handleDownloadBtnClick();
         
         elements.toggleBetaBtn.innerHTML = `<span class="material-symbols-outlined">science</span><span>显示测试版</span>`;
 
-        fastestMirror = await detectFastestMirror();
+        // 1. 首先检测get.smart-teach.cn的可用性
+        updateLoadingText("正在检测智教镜像源...");
+        smartTeachAvailable = await testSmartTeachAvailability();
+        console.log(`智教镜像源可用: ${smartTeachAvailable}`);
+        
+        // 2. 检测GitHub镜像
+        if (!smartTeachAvailable) {
+            updateLoadingText("智教镜像不可用，检测GitHub镜像...");
+            fastestMirror = await detectFastestMirror();
+        } else {
+            updateLoadingText("智教镜像可用，将优先使用...");
+        }
 
         updateLoadingText("正在获取仓库信息...");
         const repoInfoUrls = buildApiUrls(GITHUB_REPO_COMMUNITY);
